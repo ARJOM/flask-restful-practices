@@ -1,6 +1,6 @@
-from flask import request
 from flask_restful import Resource, reqparse
 from app.database.connection import get_db
+from app.utils import passwordEncrypt as pE
 
 parser = reqparse.RequestParser()
 parser.add_argument('username')
@@ -27,6 +27,8 @@ class User(Resource):
         username = data['username']
         password = data['password']
 
+        password = pE.password_encrypt(password)
+
         cur = get_db().cursor()
         cur.execute(f"UPDATE users SET username='{username}', password='{password}' WHERE id={user_id}")
         get_db().commit()
@@ -48,6 +50,8 @@ class UserList(Resource):
         data = parser.parse_args()
         username = data['username']
         password = data['password']
+
+        password = pE.password_encrypt(password)
 
         cur = get_db().cursor()
         cur.execute(f"INSERT INTO users(username, password)"
